@@ -3,6 +3,10 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Team;
+use App\Models\Arena;
+use App\Models\Group;
+use App\Models\Tournament;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -12,11 +16,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
+        $users = \App\Models\User::factory()->create();
 
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        $tournaments = Tournament::factory(5)->create();
+
+        foreach ($tournaments as $tournament) {
+            $usersIds = $users->pluck('id');
+            $tournament->users()->attach($usersIds);
+        }
+        Arena::factory(10)->create();
+        Group::factory(15)->create();
+        Team::factory(50)->create();
     }
 }

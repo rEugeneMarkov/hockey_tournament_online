@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,10 +14,29 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::controller(App\Http\Controllers\MainController::class)->group(function () {
+    Route::get('/', 'index')->name('main.index');
 });
 
-Auth::routes();
+Route::middleware('auth')
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::prefix('main')
+        ->name('main.')
+        ->group(function () {
+            Route::get('/', [App\Http\Controllers\Admin\Main\MainController::class, 'index'])->name('index');
+            Route::resource('tournament', App\Http\Controllers\Admin\Main\TournamentController::class);
+        });
+        Route::prefix('tournament{tournament}')
+        ->name('tournament.')
+        ->group(function () {
+            Route::get('/', [App\Http\Controllers\Admin\Tournament\MainController::class, 'index'])->name('index');
+            Route::resource('arena', App\Http\Controllers\Admin\Tournament\ArenaController::class);
+            Route::resource('group', App\Http\Controllers\Admin\Tournament\GroupController::class);
+            Route::resource('team', App\Http\Controllers\Admin\Tournament\TeamController::class);
+        });
+        //Route::resource('tournament.group', App\Http\Controllers\Admin\Tournament\GroupController::class);
+    });
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Auth::routes();
